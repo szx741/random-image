@@ -1,55 +1,35 @@
-### 前言
-写文章想要配图，但是懒得挑图？
-网页背景千遍一律？
+# 随机图片API
 
-最早的时候，经常听说“漫月API”，就很好奇这个是什么东东，因为“漫月”一词勾起了我的好感……
+Fork From [galnetwen](https://github.com/galnetwen)/**[Random-Image](https://github.com/galnetwen/Random-Image)**
 
-在学长最初布置博客的时候，写文章都会挑选一张图给配上，避免页面太过单调，虽然学长我主张简洁、单栏展示的网页界面，但还是觉得有那么点缀还是舒服点呢 ~
+简而言之就是做一个随机图片API调用，具体使用情况可以参考源链接，我这只做了一些小修改
 
-于是，就有了自己的私用随机图服务了。
+- php8.0不支持count string，所以需要修改一下。
 
-还是老样子，把代码整理一番，放到 GitHub 上面去……
+因为我用这个的目的主要是动态换主题的banner背景图，总共就没几张。然后这个随机图片API只能够使用服务器本地的图片，不走CDN，所以会有一点割裂感，就是加载比较慢，其他图片文章图片都加载出来了，而背景图还没加载出来，虽然就是在一秒左右的时间，但我还是感觉不爽，于是就稍微修改了一下，做了一个images-neibu.php，给内部的php使用。
 
-### 特性
-- 完全隐藏图片文件的真实地址
-- 支持调用域名白名单
-- 支持多文件夹分类目录
-- 前端调用支持使用随机数载入
+因为我的主题是[argon-theme](https://github.com/solstice23/argon-theme)，可以支持修改banner背景图，只需要给一个url就行了。所以我把之前的程序修改一下，直接返回一个url就行了。
 
-### 部署
-1. 下载代码，解压至你域名文件夹根目录
-2. 开启 Apache 或者 Nginx 的伪静态功能
-3. 访问：你的域名/images
-4. 大功告成
-
-### 配置
-打开 images.php 文件，添加域名白名单与默认文件夹即可。
-照葫芦画瓢，不用多说了吧。
-
-**多文件夹说明：**
-第二个文件夹无需配置，直接使用 URL 传递参数即可。
-
-比如：
-默认文件夹的分类，调用的域名是：“ 你的域名/images ”  
-其它文件夹的分类，调用是域名是：“ 你的域名/images/文件夹名 ”
-
-注意！
-若要使用随机数调用，必须启用 Apache 或者 Nginx 的伪静态功能，否则空白输出。  
-Nginx 用户需要手动添加 nginx.conf 文件里面的伪静态规则到你的域名配置中去……
-
-使用随机数载入的情况通常在一个页面多次调用随机图的时候，比如首页文章列表，否则图片都是一样的。
-
-随机数载入方式：“ 你的域名/images?随机数 ” ，就是原有 URL 上添加一个英文问号和任意随机数。
-
-示例：
-```html
-<img src="https://song.acg.sx/images">
-<img src="https://song.acg.sx/images/acg">
-<img src="https://song.acg.sx/images?d8c196951e5bbf3edd158de4">
-<img src="https://song.acg.sx/images/acg?9f0d34f8ee6f96b56d8902d1">
+```php
+return 'https://' . $_SERVER['HTTP_HOST'] . $img;
 ```
 
-项目演示：[https://song.acg.sx/images](https://song.acg.sx/images "")  
-项目代码：[https://github.com/galnetwen/Random-Image](https://github.com/galnetwen/Random-Image "")
+然后修改主题的functions.php文件，引入那个内部文件，然后如果在wordpress设置的url是random，那就随机获得图片的url，这个url就是普通的图片地址，因为是静态的，所以CDN会加速，大概就这样。
 
-该随机图代码由 [karnc](https://karnc.com/ "") 提供与帮助，谢谢他！
+```php
+require_once '/usr/share/nginx/html/wordpress/wp-content/random-image/images_neibu.php';
+function get_banner_background_url(){
+	$url = get_option("argon_banner_background_url");
+	if ($url == "--bing--"){
+		巴拉巴拉
+	}
+	elseif($url == "random"){
+		$url = random_get_pic();
+		return $url;
+	}
+	else{
+		return $url;
+	}
+}
+```
+
