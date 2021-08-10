@@ -37,7 +37,7 @@ function random_get_pic()
 {
     //指定目录
     $base_Path = '/wp-content/random-image/picture/'; //默认主目录
-    $category = 'a'; //默认分类目录
+    $category = 'banner'; //默认分类目录
     //列出指定目录下的图片
     $allowFiles = array(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp");
     $path = $base_Path . $category . '/';
